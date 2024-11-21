@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "string.h": "c",
+        "protocol.h": "c",
+        "sockets.h": "c",
+        "defines.h": "c",
+        "esp_wifi.h": "c"
+    }
+}

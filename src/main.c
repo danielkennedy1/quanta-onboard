@@ -13,6 +13,8 @@
 
 #include "defines.h"
 
+#include "Protocol.h"
+
 static const char *TAG = "WIFI_TCP";
 static EventGroupHandle_t wifi_event_group;
 const int WIFI_CONNECTED_BIT = BIT0;
@@ -81,14 +83,7 @@ void wifi_init_sta(void) {
 // Custom Protocol Constants
 #define START_BYTE 0x02
 
-// Function to calculate checksum (simple XOR)
-uint8_t calculate_checksum(const uint8_t *data, size_t len) {
-    uint8_t checksum = 0;
-    for (size_t i = 0; i < len; i++) {
-        checksum ^= data[i];
-    }
-    return checksum;
-}
+
 
 // Function to process received packet
 void process_packet(const uint8_t *packet, size_t len) {
@@ -220,6 +215,8 @@ void tcp_server_task(void *pvParameters) {
 }
 
 void app_main(void) {
+    ESP_LOGI(TAG, "%d", fake_function());
+
     ESP_ERROR_CHECK(nvs_flash_init());
 
     // Initialize Wi-Fi
