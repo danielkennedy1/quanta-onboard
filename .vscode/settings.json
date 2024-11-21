@@ -4,6 +4,7 @@
         "protocol.h": "c",
         "sockets.h": "c",
         "defines.h": "c",
-        "esp_wifi.h": "c"
+        "esp_wifi.h": "c",
+        "nvs_flash.h": "c"
     }
 }
