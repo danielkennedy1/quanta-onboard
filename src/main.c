@@ -13,22 +13,20 @@
 #include "freertos/queue.h"
 #include "lwip/sockets.h"
 
+
 #include "Protocol.h"
-
-static EventGroupHandle_t wifi_event_group;
-const int WIFI_CONNECTED_BIT = BIT0;
-
-static int retry_count = 0;
+#include "Wifi.h"
 
 // Wi-Fi event handler
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data) {
+    wifi_event_handler_context_t *wifi_event_handler_context = (wifi_event_handler_context_t *)arg;
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
         esp_wifi_connect();
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        if (retry_count < MAX_RETRY) {
+        if (wifi_event_handler_context->retry_count < MAX_RETRY) {
             esp_wifi_connect();
-            retry_count++;
+            wifi_event_handler_context->retry_count++;
             ESP_LOGI(TAG, "Retrying connection to Wi-Fi...");
         } else {
             ESP_LOGE(TAG, "Failed to connect to Wi-Fi");
@@ -36,14 +34,14 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
-        retry_count = 0;
-        xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+        wifi_event_handler_context->retry_count = 0;
+        ESP_LOGI(TAG, "SETTING WIFI CONNECTED BIT");
+        xEventGroupSetBits(wifi_event_handler_context->wifi_event_group, wifi_event_handler_context->wifi_connected_bit);
     }
 }
 
 // Initialize Wi-Fi
-void wifi_init_sta(void) {
-    wifi_event_group = xEventGroupCreate();
+void wifi_init_sta(wifi_event_handler_context_t *wifi_event_handler_context) {
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -57,12 +55,12 @@ void wifi_init_sta(void) {
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
                                                         ESP_EVENT_ANY_ID,
                                                         &wifi_event_handler,
-                                                        NULL,
+                                                        wifi_event_handler_context,
                                                         &instance_any_id));
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
                                                         IP_EVENT_STA_GOT_IP,
                                                         &wifi_event_handler,
-                                                        NULL,
+                                                        wifi_event_handler_context,
                                                         &instance_got_ip));
 
     wifi_config_t wifi_config = {
@@ -157,12 +155,18 @@ void app_main(void) {
 
     ESP_ERROR_CHECK(nvs_flash_init());
 
+    wifi_event_handler_context_t wifi_event_handler_context = {
+        .wifi_event_group = xEventGroupCreate(),
+        .wifi_connected_bit = BIT0,
+        .retry_count = 0,
+    };
+
     // Initialize Wi-Fi
-    wifi_init_sta();
+    wifi_init_sta(&wifi_event_handler_context);
 
     // Wait for Wi-Fi connection
-    xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT,
-                        false, true, portMAX_DELAY);
+    ESP_LOGI(TAG, "CHECKING WIFI CONNECTED BIT");
+    xEventGroupWaitBits(wifi_event_handler_context.wifi_event_group, wifi_event_handler_context.wifi_connected_bit, pdFALSE, pdTRUE, portMAX_DELAY);
     ESP_LOGI(TAG, "Connected to Wi-Fi");
 
     xTaskCreate(tcp_server_task, "tcp_server_task", 4096, NULL, 5, NULL);

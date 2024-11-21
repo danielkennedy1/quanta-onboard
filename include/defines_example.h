@@ -13,4 +13,9 @@
 #define PORT 1234
 #define BUFFER_SIZE 128
 
+
+#define START_BYTE 0x02
+
+static const char *TAG = "WIFI_TCP";
+
 #endif // DEFINES_H
