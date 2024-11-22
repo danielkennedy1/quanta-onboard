@@ -94,7 +94,6 @@ void tcp_server_task(void *pvParameters) {
 }
 
 void app_main(void) {
-    ESP_LOGI(TAG, "%d", fake_function());
 
     ESP_ERROR_CHECK(nvs_flash_init());
 
