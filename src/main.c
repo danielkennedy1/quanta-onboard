@@ -80,7 +80,7 @@ void tcp_server_task(void *pvParameters) {
             ESP_LOGI(TAG, "Received %d bytes", received);
 
             // Process received data
-            process_packet(buffer, received);
+            //process_packet(buffer, received);
         }
 
         // Close client socket
@@ -93,23 +93,72 @@ void tcp_server_task(void *pvParameters) {
     vTaskDelete(NULL);
 }
 
+#define WIFI false
+#define SERVER false
+
 void app_main(void) {
 
     ESP_ERROR_CHECK(nvs_flash_init());
 
-    wifi_event_handler_context_t wifi_event_handler_context = {
-        .wifi_event_group = xEventGroupCreate(),
-        .wifi_connected_bit = BIT0,
-        .retry_count = 0,
+    if (WIFI) {
+        // Initialize Wi-Fi
+        wifi_event_handler_context_t wifi_event_handler_context = {
+            .wifi_event_group = xEventGroupCreate(),
+            .wifi_connected_bit = BIT0,
+            .retry_count = 0,
+        };
+        wifi_init_sta(&wifi_event_handler_context);
+
+        // Wait for Wi-Fi connection
+        ESP_LOGI(TAG, "Waiting for Wi-Fi connection...");
+        xEventGroupWaitBits(wifi_event_handler_context.wifi_event_group, wifi_event_handler_context.wifi_connected_bit, pdFALSE, pdTRUE, portMAX_DELAY);
+        ESP_LOGI(TAG, "Connected to Wi-Fi");
+    }
+
+    if (SERVER) {
+        xTaskCreate(tcp_server_task, "tcp_server_task", 4096, NULL, 5, NULL);
+    }
+
+    ESP_LOGI(TAG, "Making a command packet");
+
+    CommandPacket sent_packet = {
+        .function_flag = 0x02,
+        .payload_size = 12,
+        .payload = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c}
     };
+    sent_packet.checksum = calculate_checksum(sent_packet);
 
-    // Initialize Wi-Fi
-    wifi_init_sta(&wifi_event_handler_context);
+    ESP_LOGI(TAG, "Serializing packet");
+    
+    uint8_t *bytes = to_bytes(sent_packet);
 
-    // Wait for Wi-Fi connection
-    ESP_LOGI(TAG, "CHECKING WIFI CONNECTED BIT");
-    xEventGroupWaitBits(wifi_event_handler_context.wifi_event_group, wifi_event_handler_context.wifi_connected_bit, pdFALSE, pdTRUE, portMAX_DELAY);
-    ESP_LOGI(TAG, "Connected to Wi-Fi");
+    ESP_LOGI(TAG, "Bytes: ");
+    for (size_t i = 0; i < 260; i++) {
+        printf("%02x ", bytes[i]);
+    }
+    printf("\n");
 
-    xTaskCreate(tcp_server_task, "tcp_server_task", 4096, NULL, 5, NULL);
+    ESP_LOGI(TAG, "Deserializing packet");
+
+    CommandPacket* received_packet = from_bytes(bytes, 260);
+
+    ESP_LOGI(TAG, "Received packet:");
+    ESP_LOGI(TAG, "Function flag: %02x", received_packet->function_flag);
+    ESP_LOGI(TAG, "Payload size: %02x", received_packet->payload_size);
+    ESP_LOGI(TAG, "Checksum: %02x", received_packet->checksum);
+
+    ESP_LOGI(TAG, "Payload:");
+    for (size_t i = 0; i < received_packet->payload_size; i++) {
+        printf("%02x ", received_packet->payload[i]);
+    }
+    printf("\n");
+
+    ESP_LOGI(TAG, "Verifying checksum");
+
+    if (verify_checksum(*received_packet)) {
+        ESP_LOGI(TAG, "Checksum verified");
+    } else {
+        ESP_LOGE(TAG, "Checksum verification failed");
+    }
+
 }

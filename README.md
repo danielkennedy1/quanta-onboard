@@ -47,3 +47,18 @@ The goal is to design and implement a functional IoT device on the Firebeetle-ES
 - [ ] Modularize and document code for readability and maintainability.
 - [ ] Prepare for project demonstration and code walkthrough.
 
+## Protocol
+
+| Field          | Type     | Description                          | Byte(s)       |
+|----------------|----------|--------------------------------------|---------------|
+| `start_byte`   | `uint8_t`| Start byte                           | 0             |
+| `function_flag`| `uint8_t`| Function selector                    | 1             |
+| `payload_size` | `uint8_t`| Size of the payload in bytes         | 2             |
+| `payload`      | `uint8_t[256]`| Payload for function parameters | 3 - 258       |
+| `checksum`     | `uint8_t`| XOR Checksum                         | 259           |
+
+## Byte Layout
+
+| Byte    | 0           | 1             | 2             | 3 - 258       | 259         |
+|---------|-------------|---------------|---------------|---------------|-------------|
+| Field   | `start_byte`| `function_flag`| `payload_size`| `payload`     | `checksum`  |

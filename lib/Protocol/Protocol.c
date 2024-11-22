@@ -1,13 +1,58 @@
 #include "Protocol.h"
 
-uint8_t calculate_checksum(const uint8_t *data, size_t len) {
+uint8_t* to_bytes(CommandPacket command_packet) {
+    uint8_t *bytes = malloc(260);
+    if (bytes == NULL) {
+        ESP_LOGE(TAG, "Memory allocation failed");
+        return NULL;
+    }
+
+    bytes[0] = command_packet.start_byte;
+    bytes[1] = command_packet.function_flag;
+    bytes[2] = command_packet.payload_size;
+    for (size_t i = 0; i < command_packet.payload_size; i++) {
+        bytes[3 + i] = command_packet.payload[i];
+    }
+    bytes[259] = command_packet.checksum;
+
+    return bytes;
+}
+
+CommandPacket* from_bytes(uint8_t *bytes, size_t len) {
+    CommandPacket* command_packet = malloc(sizeof(CommandPacket));
+    if (len < 3) {
+        ESP_LOGW(TAG, "Invalid bytes: too short");
+        return NULL;
+    }
+
+    command_packet->start_byte = bytes[0];
+    command_packet->function_flag = bytes[1];
+    command_packet->payload_size = bytes[2];
+    for (size_t i = 0; i < command_packet->payload_size; i++) {
+        command_packet->payload[i] = bytes[3 + i];
+    }
+    command_packet->checksum = bytes[259];
+
+    return command_packet;
+}
+
+uint8_t calculate_checksum(CommandPacket command_packet) {
     uint8_t checksum = 0;
-    for (size_t i = 0; i < len; i++) {
-        checksum ^= data[i];
+    checksum ^= command_packet.start_byte;
+    checksum ^= command_packet.function_flag;
+    checksum ^= command_packet.payload_size;
+    for (size_t i = 0; i < command_packet.payload_size; i++) {
+        checksum ^= command_packet.payload[i];
     }
     return checksum;
 }
 
+bool verify_checksum(CommandPacket command_packet) {
+    uint8_t checksum = calculate_checksum(command_packet);
+    return checksum == command_packet.checksum;
+}
+
+/*
 void process_packet(const uint8_t *packet, size_t len) {
     if (len < 3) {
         ESP_LOGW(TAG, "Invalid packet: too short");
@@ -61,3 +106,4 @@ void process_packet(const uint8_t *packet, size_t len) {
     // Log the ASCII string
     ESP_LOGI(TAG, "Payload as ASCII: %s", ascii_str);
 }
+*/
