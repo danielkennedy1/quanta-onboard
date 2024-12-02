@@ -12,6 +12,10 @@
         "esp_crypto_dma.h": "c",
         "esp_log.h": "c",
         "command.h": "c",
-        "functions.h": "c"
+        "functions.h": "c",
+        "esp_timer.h": "c",
+        "rtc.h": "c",
+        "rtc_wdt.h": "c",
+        "time.h": "c"
     }
 }
