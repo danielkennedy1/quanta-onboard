@@ -1,20 +1,15 @@
 #include "defines.h"
 
 // C standard libraries
-#include <stdio.h>
 #include <string.h>
-#include <time.h>
 
 // FreeRTOS
 #include "freertos/FreeRTOS.h"
-#include "freertos/event_groups.h"
 #include "freertos/task.h"
 
 // ESP32 libraries
-#include "esp_wifi.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
-#include "esp_sntp.h"
 
 // Tasks
 #include "TCP_Server.h"
@@ -27,7 +22,7 @@
 #define TAG "main"
 
 #define WIFI true
-#define SERVER false
+#define SERVER true
 
 void app_main(void) {
 

@@ -62,8 +62,19 @@ void tcp_server_task(void *pvParameters) {
 
             ESP_LOGI(TAG, "Received %d bytes", received);
 
-            // Process received data
-            //process_packet(buffer, received);
+            Packet* received_packet = from_bytes(buffer, received);
+            Packet response = process_packet(received_packet);
+
+            uint8_t* response_bytes = to_bytes(response);
+
+            // Send response
+            if (send(client_sock, response_bytes, PACKET_SIZE, 0) < 0) {
+                ESP_LOGE(TAG, "Error sending data: errno %d", errno);
+                break;
+            }
+
+            free(received_packet);
+            free(response_bytes);
         }
 
         // Close client socket

@@ -8,6 +8,7 @@ uint8_t* to_bytes(Packet command_packet) {
         ESP_LOGE(TAG, "Memory allocation failed");
         return NULL;
     }
+    memset(bytes, 0, PACKET_SIZE);
 
     bytes[0] = command_packet.start_byte;
     bytes[1] = command_packet.function_flag;

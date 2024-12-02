@@ -1,24 +1,25 @@
 import socket
 
 # ESP32 server IP and port
-ESP32_IP = '192.168.184.91'  # Replace with your ESP32's IP address
+ESP32_IP = '192.168.0.174'  # Replace with your ESP32's IP address
 PORT = 1234  # Port to which ESP32 is listening
 
 # Custom protocol parameters
 START_BYTE = 0x02
-PAYLOAD = b'ABCDE'  # Payload to send
+FUNCTION_ID = 0x00
+PAYLOAD = b'BCDE'  # Payload to send
 LENGTH = len(PAYLOAD)
 
 # Create the protocol message
-def create_protocol_message(payload):
+def create_packet(function_id, payload):
     length = len(payload)
     
     # Custom protocol format: [START_BYTE][LENGTH][PAYLOAD][CHECKSUM]
-    message = bytes([START_BYTE, length]) + payload
+    message = bytes([START_BYTE, function_id, length]) + payload
     return message
 
 # Send message to ESP32
-def send_message_to_esp32(message):
+def send_packet_to_esp32(packet):
     try:
         # Create a socket and connect to the ESP32 server
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -26,15 +27,23 @@ def send_message_to_esp32(message):
             print(f"Connected to {ESP32_IP}:{PORT}")
             
             # Send the message
-            s.sendall(message)
-            print(f"Sent: {message.hex()}")
+            s.sendall(packet)
+            print(f"Sent: {packet.hex()}")
+
+            # Receive the response
+            response = s.recv(260)
+            print("Received response")
+            print(f"start_byte: {response[0]:02X}")
+            print(f"function_id: {response[1]:02X}")
+            print(f"length: {response[2]}")
+            print(f"payload: {response[3:-1].decode()}")
 
     except Exception as e:
         print(f"Error: {e}")
 
 if __name__ == "__main__":
     # Create the custom protocol message
-    message = create_protocol_message(PAYLOAD)
+    message = create_packet(FUNCTION_ID, PAYLOAD)
 
     # Send the message to the ESP32
-    send_message_to_esp32(message)
+    send_packet_to_esp32(message)
