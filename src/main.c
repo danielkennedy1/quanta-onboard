@@ -1,97 +1,27 @@
 #include "defines.h"
 
+// C standard libraries
 #include <stdio.h>
 #include <string.h>
-#include "esp_wifi.h"
-#include "esp_event.h"
-#include "esp_log.h"
-#include "nvs_flash.h"
+
+// FreeRTOS
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
-
 #include "freertos/task.h"
-#include "freertos/queue.h"
-#include "lwip/sockets.h"
 
+// ESP32 libraries
+#include "esp_wifi.h"
+#include "esp_log.h"
+#include "nvs_flash.h"
 
+// Tasks
+#include "TCP_Server.h"
+
+// Libraries
 #include "Command.h"
 #include "Wifi.h"
 
 #define TAG "main"
-
-// TCP server task
-void tcp_server_task(void *pvParameters) {
-    int listen_sock, client_sock;
-    struct sockaddr_in server_addr, client_addr;
-    socklen_t addr_len = sizeof(client_addr);
-
-    uint8_t buffer[BUFFER_SIZE];
-
-    // Create socket
-    listen_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
-    if (listen_sock < 0) {
-        ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
-        vTaskDelete(NULL);
-        return;
-    }
-
-    // Bind socket to port
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
-    if (bind(listen_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        ESP_LOGE(TAG, "Socket unable to bind: errno %d", errno);
-        close(listen_sock);
-        vTaskDelete(NULL);
-        return;
-    }
-
-    // Listen for incoming connections
-    if (listen(listen_sock, 1) < 0) {
-        ESP_LOGE(TAG, "Error in listen: errno %d", errno);
-        close(listen_sock);
-        vTaskDelete(NULL);
-        return;
-    }
-
-    ESP_LOGI(TAG, "TCP server listening on port %d", PORT);
-
-    while (1) {
-        // Accept a new client connection
-        client_sock = accept(listen_sock, (struct sockaddr *)&client_addr, &addr_len);
-        if (client_sock < 0) {
-            ESP_LOGE(TAG, "Unable to accept connection: errno %d", errno);
-            break;
-        }
-
-        ESP_LOGI(TAG, "New connection accepted");
-
-        // Receive data
-        while (1) {
-            ssize_t received = recv(client_sock, buffer, BUFFER_SIZE, 0);
-            if (received < 0) {
-                ESP_LOGE(TAG, "Error receiving data: errno %d", errno);
-                break;
-            } else if (received == 0) {
-                ESP_LOGI(TAG, "Connection closed");
-                break;
-            }
-
-            ESP_LOGI(TAG, "Received %d bytes", received);
-
-            // Process received data
-            //process_packet(buffer, received);
-        }
-
-        // Close client socket
-        close(client_sock);
-        ESP_LOGI(TAG, "Client disconnected");
-    }
-
-    // Cleanup
-    close(listen_sock);
-    vTaskDelete(NULL);
-}
 
 #define WIFI false
 #define SERVER false
@@ -126,13 +56,6 @@ void app_main(void) {
         .function_flag = 0x00,
         .payload_size = 0
     };
-    //memset(sent_packet.payload, 0, PACKET_SIZE - 4);
-    //int payload[12] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c};
-
-    // for (size_t i = 0; i < sent_packet.payload_size; i++) {
-    //     sent_packet.payload[i] = payload[i];
-    // }
-    // ESP_LOGI(TAG, "Serializing packet");
     
     uint8_t *bytes = to_bytes(sent_packet);
 
