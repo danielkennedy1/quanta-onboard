@@ -1,5 +1,7 @@
 #include "Protocol.h"
 
+#define TAG "Protocol"
+
 uint8_t* to_bytes(Packet command_packet) {
     uint8_t *bytes = malloc(PACKET_SIZE);
     if (bytes == NULL) {

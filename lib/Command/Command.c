@@ -1,5 +1,7 @@
 #include "Command.h"
 
+#define TAG "Command"
+
 FunctionPointer protocol_function_table[MAX_FUNCTIONS] = {
     [0x00] = heartbeat
 };

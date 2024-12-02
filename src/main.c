@@ -17,6 +17,7 @@
 #include "Command.h"
 #include "Wifi.h"
 
+#define TAG "main"
 
 // TCP server task
 void tcp_server_task(void *pvParameters) {
