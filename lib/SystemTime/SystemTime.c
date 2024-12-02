@@ -1,4 +1,4 @@
-#include "Timestamping.h"
+#include "SystemTime.h"
 
 #define TAG "TIME"
 
@@ -7,11 +7,11 @@ void time_sync_notification_cb(struct timeval *tv) {
 }
 
 void initialize_system_time(void) {
-    ESP_LOGI(TAG, "Initializing SNTP");
+    ESP_LOGI(TAG, "Initializing System time using SNTP");
 
     // Initialize the SNTP service
     esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    esp_sntp_setservername(0, "pool.ntp.org"); // Use a default NTP server
+    esp_sntp_setservername(0, SNTP_SERVER);
     esp_sntp_set_time_sync_notification_cb(time_sync_notification_cb);
     esp_sntp_init();
 

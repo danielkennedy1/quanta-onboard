@@ -1,5 +1,7 @@
-#ifndef SNTP_H
-#define SNTP_H
+#ifndef SYSTEMTIME_H
+#define SYSTEMTIME_H
+
+#include "defines.h"
 
 #include "esp_sntp.h"
 #include "esp_log.h"
@@ -9,4 +11,4 @@ void initialize_system_time(void);
 
 const char* get_timestamp(void);
 
-#endif // SNTP_H
+#endif // SYSTEMTIME_H

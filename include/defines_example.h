@@ -13,7 +13,6 @@
 #define PORT 1234
 #define BUFFER_SIZE 128
 
-
-#define START_BYTE 0x02
+#define SNTP_SERVER "pool.ntp.org"  // NTP server
 
 #endif // DEFINES_H

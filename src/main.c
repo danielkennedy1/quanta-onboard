@@ -22,7 +22,7 @@
 // Libraries
 #include "Command.h"
 #include "Wifi.h"
-#include "Timestamping.h"
+#include "SystemTime.h"
 
 #define TAG "main"
 
@@ -34,25 +34,14 @@ void app_main(void) {
     ESP_ERROR_CHECK(nvs_flash_init());
 
     if (WIFI) {
-        // Initialize Wi-Fi
-        wifi_event_handler_context_t wifi_event_handler_context = {
-            .wifi_event_group = xEventGroupCreate(),
-            .wifi_connected_bit = BIT0,
-            .retry_count = 0,
-        };
-        wifi_init_sta(&wifi_event_handler_context);
-
-        // Wait for Wi-Fi connection
-        ESP_LOGI(TAG, "Waiting for Wi-Fi connection...");
-        xEventGroupWaitBits(wifi_event_handler_context.wifi_event_group, wifi_event_handler_context.wifi_connected_bit, pdFALSE, pdTRUE, portMAX_DELAY);
-        ESP_LOGI(TAG, "Connected to Wi-Fi");
+        initialize_wifi();
+        initialize_system_time();
     }
 
     if (SERVER) {
         xTaskCreate(tcp_server_task, "tcp_server_task", 4096, NULL, 5, NULL);
     }
 
-    initialize_system_time();
     ESP_LOGI(TAG, "The current date/time is: %s", get_timestamp());
 
 }

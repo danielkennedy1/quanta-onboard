@@ -20,12 +20,11 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base,
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
         wifi_event_handler_context->retry_count = 0;
-        ESP_LOGI(TAG, "SETTING WIFI CONNECTED BIT");
+        ESP_LOGD(TAG, "Setting Wi-Fi connected bit");
         xEventGroupSetBits(wifi_event_handler_context->wifi_event_group, wifi_event_handler_context->wifi_connected_bit);
     }
 }
 
-// Initialize Wi-Fi
 void wifi_init_sta(wifi_event_handler_context_t *wifi_event_handler_context) {
 
     ESP_ERROR_CHECK(esp_netif_init());
@@ -59,4 +58,19 @@ void wifi_init_sta(wifi_event_handler_context_t *wifi_event_handler_context) {
     ESP_ERROR_CHECK(esp_wifi_start());
 
     ESP_LOGI(TAG, "Wi-Fi initialization complete.");
+}
+
+void initialize_wifi(void) {
+    // Initialize Wi-Fi
+    wifi_event_handler_context_t wifi_event_handler_context = {
+        .wifi_event_group = xEventGroupCreate(),
+        .wifi_connected_bit = BIT0,
+        .retry_count = 0,
+    };
+    wifi_init_sta(&wifi_event_handler_context);
+
+    // Wait for Wi-Fi connection
+    ESP_LOGI(TAG, "Waiting for Wi-Fi connection...");
+    xEventGroupWaitBits(wifi_event_handler_context.wifi_event_group, wifi_event_handler_context.wifi_connected_bit, pdFALSE, pdTRUE, portMAX_DELAY);
+    ESP_LOGI(TAG, "Connected to Wi-Fi, SSID: %s", WIFI_SSID);
 }
