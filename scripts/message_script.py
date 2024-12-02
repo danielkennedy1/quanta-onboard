@@ -8,22 +8,13 @@ PORT = 1234  # Port to which ESP32 is listening
 START_BYTE = 0x02
 PAYLOAD = b'ABCDE'  # Payload to send
 LENGTH = len(PAYLOAD)
-CHECKSUM = 0  # We'll calculate the checksum based on the payload
-
-# Function to calculate checksum (simple XOR)
-def calculate_checksum(data):
-    checksum = 0
-    for byte in data:
-        checksum ^= byte
-    return checksum
 
 # Create the protocol message
 def create_protocol_message(payload):
     length = len(payload)
-    checksum = calculate_checksum(payload)
     
     # Custom protocol format: [START_BYTE][LENGTH][PAYLOAD][CHECKSUM]
-    message = bytes([START_BYTE, length]) + payload + bytes([checksum])
+    message = bytes([START_BYTE, length]) + payload
     return message
 
 # Send message to ESP32

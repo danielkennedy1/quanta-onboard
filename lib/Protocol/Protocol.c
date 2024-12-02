@@ -1,7 +1,7 @@
 #include "Protocol.h"
 
 uint8_t* to_bytes(CommandPacket command_packet) {
-    uint8_t *bytes = malloc(260);
+    uint8_t *bytes = malloc(PACKET_SIZE);
     if (bytes == NULL) {
         ESP_LOGE(TAG, "Memory allocation failed");
         return NULL;
@@ -13,7 +13,6 @@ uint8_t* to_bytes(CommandPacket command_packet) {
     for (size_t i = 0; i < command_packet.payload_size; i++) {
         bytes[3 + i] = command_packet.payload[i];
     }
-    bytes[259] = command_packet.checksum;
 
     return bytes;
 }
@@ -26,60 +25,34 @@ CommandPacket* from_bytes(uint8_t *bytes, size_t len) {
     }
 
     command_packet->start_byte = bytes[0];
+
+    if (command_packet->start_byte != START_BYTE) {
+        ESP_LOGW(TAG, "Invalid bytes: missing start byte");
+        free(command_packet);
+        return NULL;
+    }
+
+    if (len < 3 + bytes[2]) {
+        ESP_LOGW(TAG, "Invalid bytes: length mismatch");
+        free(command_packet);
+        return NULL;
+    }
+
     command_packet->function_flag = bytes[1];
     command_packet->payload_size = bytes[2];
+
     for (size_t i = 0; i < command_packet->payload_size; i++) {
         command_packet->payload[i] = bytes[3 + i];
     }
-    command_packet->checksum = bytes[259];
-
     return command_packet;
-}
-
-uint8_t calculate_checksum(CommandPacket command_packet) {
-    uint8_t checksum = 0;
-    checksum ^= command_packet.start_byte;
-    checksum ^= command_packet.function_flag;
-    checksum ^= command_packet.payload_size;
-    for (size_t i = 0; i < command_packet.payload_size; i++) {
-        checksum ^= command_packet.payload[i];
-    }
-    return checksum;
-}
-
-bool verify_checksum(CommandPacket command_packet) {
-    uint8_t checksum = calculate_checksum(command_packet);
-    return checksum == command_packet.checksum;
 }
 
 /*
 void process_packet(const uint8_t *packet, size_t len) {
-    if (len < 3) {
-        ESP_LOGW(TAG, "Invalid packet: too short");
-        return;
-    }
-
-    // Check for start byte
-    if (packet[0] != START_BYTE) {
-        ESP_LOGW(TAG, "Invalid packet: missing start byte");
-        return;
-    }
-
-    // Extract length and payload
-    uint8_t length = packet[1];
-    if (length + 3 > len) {
-        ESP_LOGW(TAG, "Invalid packet: length mismatch");
-        return;
-    }
 
     const uint8_t *payload = &packet[2];
     uint8_t checksum = packet[2 + length];
 
-    // Verify checksum
-    if (calculate_checksum(payload, length) != checksum) {
-        ESP_LOGW(TAG, "Invalid packet: checksum mismatch");
-        return;
-    }
 
     // Handle payload
     ESP_LOGI(TAG, "Valid packet received: Payload (length=%d)", length);

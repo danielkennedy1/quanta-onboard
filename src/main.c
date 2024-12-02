@@ -122,43 +122,38 @@ void app_main(void) {
     ESP_LOGI(TAG, "Making a command packet");
 
     CommandPacket sent_packet = {
+        .start_byte = START_BYTE,
         .function_flag = 0x02,
-        .payload_size = 12,
-        .payload = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c}
+        .payload_size = 12
     };
-    sent_packet.checksum = calculate_checksum(sent_packet);
+    memset(sent_packet.payload, 0, PACKET_SIZE - 4);
+    int payload[12] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c};
 
+    for (size_t i = 0; i < sent_packet.payload_size; i++) {
+        sent_packet.payload[i] = payload[i];
+    }
     ESP_LOGI(TAG, "Serializing packet");
     
     uint8_t *bytes = to_bytes(sent_packet);
 
     ESP_LOGI(TAG, "Bytes: ");
-    for (size_t i = 0; i < 260; i++) {
+    for (size_t i = 0; i < PACKET_SIZE; i++) {
         printf("%02x ", bytes[i]);
     }
     printf("\n");
 
     ESP_LOGI(TAG, "Deserializing packet");
 
-    CommandPacket* received_packet = from_bytes(bytes, 260);
+    CommandPacket* received_packet = from_bytes(bytes, PACKET_SIZE);
 
     ESP_LOGI(TAG, "Received packet:");
     ESP_LOGI(TAG, "Function flag: %02x", received_packet->function_flag);
     ESP_LOGI(TAG, "Payload size: %02x", received_packet->payload_size);
-    ESP_LOGI(TAG, "Checksum: %02x", received_packet->checksum);
 
     ESP_LOGI(TAG, "Payload:");
     for (size_t i = 0; i < received_packet->payload_size; i++) {
         printf("%02x ", received_packet->payload[i]);
     }
     printf("\n");
-
-    ESP_LOGI(TAG, "Verifying checksum");
-
-    if (verify_checksum(*received_packet)) {
-        ESP_LOGI(TAG, "Checksum verified");
-    } else {
-        ESP_LOGE(TAG, "Checksum verification failed");
-    }
 
 }

@@ -8,6 +8,7 @@
         "nvs_flash.h": "c",
         "esp_event.h": "c",
         "wifi.h": "c",
-        "cstdint": "c"
+        "cstdint": "c",
+        "esp_crypto_dma.h": "c"
     }
 }
