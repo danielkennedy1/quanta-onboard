@@ -11,9 +11,9 @@
 
 #define MAX_FUNCTIONS 16 // Theoretical maximum number of functions: 256
 
-typedef CommandPacket (*FunctionPointer)(const CommandPacket *packet);
+typedef Packet (*FunctionPointer)(const Packet *packet);
 
-CommandPacket heartbeat(const CommandPacket *packet);
+Packet heartbeat(const Packet *packet);
 
 /*
     Function table
@@ -22,6 +22,6 @@ CommandPacket heartbeat(const CommandPacket *packet);
 extern FunctionPointer protocol_function_table[];
 
 // Process a received packet and return a response packet
-CommandPacket process_packet(const CommandPacket *packet);
+Packet process_packet(const Packet *packet);
 
 #endif // COMMAND_H

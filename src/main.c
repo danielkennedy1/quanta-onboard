@@ -120,7 +120,7 @@ void app_main(void) {
 
     ESP_LOGI(TAG, "Making a command packet");
 
-    CommandPacket sent_packet = {
+    Packet sent_packet = {
         .start_byte = RX_START_BYTE,
         .function_flag = 0x00,
         .payload_size = 0
@@ -143,7 +143,7 @@ void app_main(void) {
 
     ESP_LOGI(TAG, "Deserializing packet");
 
-    CommandPacket* received_packet = from_bytes(bytes, PACKET_SIZE);
+    Packet* received_packet = from_bytes(bytes, PACKET_SIZE);
 
     ESP_LOGI(TAG, "Received packet:");
     ESP_LOGI(TAG, "Function flag: %02x", received_packet->function_flag);
@@ -159,7 +159,7 @@ void app_main(void) {
 
     ESP_LOGI(TAG, "Processing packet");
 
-    CommandPacket response = process_packet(received_packet);
+    Packet response = process_packet(received_packet);
 
     ESP_LOGI(TAG, "Response:");
     ESP_LOGI(TAG, "Function flag: %02x", response.function_flag);

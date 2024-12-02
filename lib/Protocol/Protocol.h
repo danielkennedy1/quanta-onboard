@@ -23,12 +23,12 @@ typedef struct {
     uint8_t function_flag;  // Function selector (byte 1)
     uint8_t payload_size;   // Size of the payload in bytes (byte 2)
     uint8_t payload[PACKET_SIZE - 3];   // Payload for function parameters (bytes 3 - 259)
-} CommandPacket;
+} Packet;
 
 // Functions to convert CommandPacket to and from bytes
-uint8_t* to_bytes(CommandPacket command_packet);
+uint8_t* to_bytes(Packet command_packet);
 
 // Function to convert bytes to CommandPacket (WARNING: MEMORY ALLOCATED FOR RETURNED POINTER)
-CommandPacket* from_bytes(uint8_t *bytes, size_t len);
+Packet* from_bytes(uint8_t *bytes, size_t len);
 
 #endif // PROTOCOL_H
