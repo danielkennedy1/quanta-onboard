@@ -14,9 +14,8 @@
 #include "lwip/sockets.h"
 
 
-#include "Protocol.h"
+#include "Command.h"
 #include "Wifi.h"
-
 
 
 // TCP server task
@@ -122,17 +121,17 @@ void app_main(void) {
     ESP_LOGI(TAG, "Making a command packet");
 
     CommandPacket sent_packet = {
-        .start_byte = START_BYTE,
-        .function_flag = 0x02,
-        .payload_size = 12
+        .start_byte = RX_START_BYTE,
+        .function_flag = 0x00,
+        .payload_size = 0
     };
-    memset(sent_packet.payload, 0, PACKET_SIZE - 4);
-    int payload[12] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c};
+    //memset(sent_packet.payload, 0, PACKET_SIZE - 4);
+    //int payload[12] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c};
 
-    for (size_t i = 0; i < sent_packet.payload_size; i++) {
-        sent_packet.payload[i] = payload[i];
-    }
-    ESP_LOGI(TAG, "Serializing packet");
+    // for (size_t i = 0; i < sent_packet.payload_size; i++) {
+    //     sent_packet.payload[i] = payload[i];
+    // }
+    // ESP_LOGI(TAG, "Serializing packet");
     
     uint8_t *bytes = to_bytes(sent_packet);
 
@@ -156,4 +155,22 @@ void app_main(void) {
     }
     printf("\n");
 
+    free(bytes);
+
+    ESP_LOGI(TAG, "Processing packet");
+
+    CommandPacket response = process_packet(received_packet);
+
+    ESP_LOGI(TAG, "Response:");
+    ESP_LOGI(TAG, "Function flag: %02x", response.function_flag);
+    ESP_LOGI(TAG, "Payload size: %02x", response.payload_size);
+
+    ESP_LOGI(TAG, "Payload:");
+    for (size_t i = 0; i < response.payload_size; i++) {
+        printf("%02x ", response.payload[i]);
+    }
+
+    free(received_packet);
+
+    ESP_LOGI(TAG, "Done");
 }

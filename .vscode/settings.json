@@ -9,6 +9,9 @@
         "esp_event.h": "c",
         "wifi.h": "c",
         "cstdint": "c",
-        "esp_crypto_dma.h": "c"
+        "esp_crypto_dma.h": "c",
+        "esp_log.h": "c",
+        "command.h": "c",
+        "functions.h": "c"
     }
 }

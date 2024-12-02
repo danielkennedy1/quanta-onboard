@@ -26,7 +26,7 @@ CommandPacket* from_bytes(uint8_t *bytes, size_t len) {
 
     command_packet->start_byte = bytes[0];
 
-    if (command_packet->start_byte != START_BYTE) {
+    if (command_packet->start_byte != RX_START_BYTE) {
         ESP_LOGW(TAG, "Invalid bytes: missing start byte");
         free(command_packet);
         return NULL;

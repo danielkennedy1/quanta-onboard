@@ -1,14 +1,18 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-#include "esp_wifi.h"
+#include <stdlib.h>
 #include "esp_log.h"
-
 
 #include "defines.h"
 
 #define PACKET_SIZE 260
-#define START_BYTE 0x02
+
+// Start byte for received packets
+#define RX_START_BYTE 0x02
+
+// Start byte for transmitted packets
+#define TX_START_BYTE 0x03
 
 // Protocol structure
 /*
@@ -23,9 +27,8 @@ typedef struct {
 
 // Functions to convert CommandPacket to and from bytes
 uint8_t* to_bytes(CommandPacket command_packet);
-CommandPacket* from_bytes(uint8_t *bytes, size_t len);
 
-// Function to process received packet
-//void process_packet(const uint8_t *packet, size_t len);
+// Function to convert bytes to CommandPacket (WARNING: MEMORY ALLOCATED FOR RETURNED POINTER)
+CommandPacket* from_bytes(uint8_t *bytes, size_t len);
 
 #endif // PROTOCOL_H
