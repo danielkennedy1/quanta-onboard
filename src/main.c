@@ -10,6 +10,7 @@
 
 // Tasks
 #include "TCP_Server.h"
+#include "Simulator.h"
 
 // Libraries
 #include "Command.h"
@@ -20,6 +21,7 @@
 
 #define WIFI true
 #define SERVER true
+#define SIM true
 
 void app_main(void) {
 
@@ -32,6 +34,10 @@ void app_main(void) {
 
     if (SERVER) {
         xTaskCreate(tcp_server_task, "tcp_server_task", 4096, NULL, 5, NULL);
+    }
+
+    if (SIM) {
+        xTaskCreate(sim_air_temp_task, "sim_air_temp_task", 4096, NULL, 5, NULL);
     }
 
     ESP_LOGI(TAG, "The current date/time is: %s", get_timestamp());
