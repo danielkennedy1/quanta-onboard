@@ -1,8 +1,5 @@
 #include "defines.h"
 
-// C standard libraries
-#include <string.h>
-
 // FreeRTOS
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"

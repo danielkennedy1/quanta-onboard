@@ -8,7 +8,7 @@
 
 #include "defines.h"
 
-#define PACKET_SIZE 260
+#define PACKET_SIZE 259
 
 // Start byte for received packets (could be used as version number)
 #define RX_START_BYTE 0x02
@@ -18,13 +18,13 @@
 
 // Protocol structure
 /*
- * Total packet size: 260 bytes 
+ * Total packet size: 259 bytes 
  */
 typedef struct {
     uint8_t start_byte;     // Start byte (byte 0)
     uint8_t function_flag;  // Function selector (byte 1)
     uint8_t payload_size;   // Size of the payload in bytes (byte 2)
-    uint8_t payload[PACKET_SIZE - 3];   // Payload for function parameters (bytes 3 - 259)
+    uint8_t payload[UINT8_MAX];   // Payload for function parameters (bytes 3 - 258)
 } Packet;
 
 // Functions to convert CommandPacket to and from bytes
