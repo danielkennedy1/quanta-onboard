@@ -44,6 +44,12 @@ Packet* from_bytes(uint8_t *bytes, size_t len) {
     packet->function_flag = bytes[1];
     packet->payload_size = bytes[2];
 
+    if (packet->payload_size > PACKET_SIZE - 3) {
+        ESP_LOGE(TAG, "Payload is too big!");
+        free(packet);
+        return NULL;
+    }
+
     for (size_t i = 0; i < packet->payload_size; i++) {
         packet->payload[i] = bytes[3 + i];
     }

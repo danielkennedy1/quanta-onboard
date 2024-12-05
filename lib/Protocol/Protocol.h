@@ -10,7 +10,7 @@
 
 #define PACKET_SIZE 260
 
-// Start byte for received packets
+// Start byte for received packets (could be used as version number)
 #define RX_START_BYTE 0x02
 
 // Start byte for transmitted packets
@@ -18,7 +18,7 @@
 
 // Protocol structure
 /*
- * Total packet size: 260 bytes
+ * Total packet size: 260 bytes 
  */
 typedef struct {
     uint8_t start_byte;     // Start byte (byte 0)

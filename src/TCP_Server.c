@@ -41,6 +41,7 @@ void tcp_server_task(void *pvParameters) {
 
     while (1) {
         // Accept a new client connection
+        // accept() blocks until a client connects to the server
         client_sock = accept(listen_sock, (struct sockaddr *)&client_addr, &addr_len);
         if (client_sock < 0) {
             ESP_LOGE(TAG, "Unable to accept connection: errno %d", errno);
@@ -72,6 +73,8 @@ void tcp_server_task(void *pvParameters) {
                 ESP_LOGE(TAG, "Error sending data: errno %d", errno);
                 break;
             }
+
+            ESP_LOGI(TAG, "Returned response");
 
             free(received_packet);
             free(response_bytes);

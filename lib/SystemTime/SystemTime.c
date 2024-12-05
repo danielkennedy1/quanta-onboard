@@ -9,13 +9,11 @@ void time_sync_notification_cb(struct timeval *tv) {
 void initialize_system_time(void) {
     ESP_LOGI(TAG, "Initializing System time using SNTP");
 
-    // Initialize the SNTP service
     esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
     esp_sntp_setservername(0, SNTP_SERVER);
     esp_sntp_set_time_sync_notification_cb(time_sync_notification_cb);
     esp_sntp_init();
 
-    // Wait for time to be set
     time_t now = 0;
     struct tm timeinfo = {0};
     int retry = 0;
@@ -38,7 +36,7 @@ void initialize_system_time(void) {
 const char* get_timestamp(void) {
     time_t now;
     struct tm timestamp;
-    static char timestamp_str[64];
+    static char timestamp_str[64]; // Static buffer to store timestamp, no memory reallocation per call
 
     time(&now);
     localtime_r(&now, &timestamp);
