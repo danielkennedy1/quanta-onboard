@@ -6,7 +6,7 @@ PORT = 1234  # Port to which ESP32 is listening
 
 # Custom protocol parameters
 START_BYTE = 0x02
-FUNCTION_ID = 0x00
+FUNCTION_ID = 0x01
 PAYLOAD = b'BCDE'  # Payload to send
 LENGTH = len(PAYLOAD)
 

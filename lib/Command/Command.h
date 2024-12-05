@@ -8,12 +8,14 @@
 #include "esp_log.h"
 
 #include "Protocol.h"
+#include "SystemTime.h"
 
 #define MAX_FUNCTIONS 16 // Theoretical maximum number of functions: 256
 
 typedef Packet (*FunctionPointer)(const Packet *packet);
 
 Packet heartbeat(const Packet *packet);
+Packet system_time(const Packet *packet);
 
 /*
     Function table
