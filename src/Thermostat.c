@@ -1,8 +1,8 @@
-#include "Heater.h"
+#include "Thermostat.h"
 
 #define TAG "Heater"
 
-void heater_task(void *pvParameters){
+void thermostat_task(void *pvParameters){
     while (1)
     {
         HeaterState state = get_heater_state();

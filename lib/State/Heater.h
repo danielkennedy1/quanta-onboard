@@ -1,5 +1,5 @@
-#ifndef STATE_H
-#define STATE_H
+#ifndef HEATER_H
+#define HEATER_H
 
 #include "defines.h"
 
@@ -25,4 +25,4 @@ void init_heater_state();
 HeaterState get_heater_state();
 void set_heater_state(HeaterState state);
 
-#endif // STATE_H
+#endif // HEATER_H

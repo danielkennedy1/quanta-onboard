@@ -1,4 +1,4 @@
-#include "State.h"
+#include "Heater.h"
 
 SemaphoreHandle_t heater_state_mutex;
 static HeaterState heater_state;

@@ -17,6 +17,8 @@
         "rtc.h": "c",
         "rtc_wdt.h": "c",
         "time.h": "c",
-        "sntp.h": "c"
+        "sntp.h": "c",
+        "simulator.h": "c",
+        "thermostat.h": "c"
     }
 }
