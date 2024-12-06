@@ -8,7 +8,7 @@ void tcp_server_task(void *pvParameters) {
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_len = sizeof(client_addr);
 
-    uint8_t buffer[BUFFER_SIZE];
+    uint8_t buffer[TCP_BUFFER_SIZE];
 
     // Create socket
     listen_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
@@ -21,7 +21,7 @@ void tcp_server_task(void *pvParameters) {
     // Bind socket to port
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
+    server_addr.sin_port = htons(TCP_PORT);
     if (bind(listen_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         ESP_LOGE(TAG, "Socket unable to bind: errno %d", errno);
         close(listen_sock);
@@ -37,7 +37,7 @@ void tcp_server_task(void *pvParameters) {
         return;
     }
 
-    ESP_LOGI(TAG, "TCP server listening on port %d", PORT);
+    ESP_LOGI(TAG, "TCP server listening on port %d", TCP_PORT);
 
     while (1) {
         // Accept a new client connection
@@ -52,7 +52,7 @@ void tcp_server_task(void *pvParameters) {
 
         // Receive data
         while (1) {
-            ssize_t received = recv(client_sock, buffer, BUFFER_SIZE, 0);
+            ssize_t received = recv(client_sock, buffer, TCP_BUFFER_SIZE, 0);
             if (received < 0) {
                 ESP_LOGE(TAG, "Error receiving data: errno %d", errno);
                 break;

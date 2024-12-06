@@ -11,21 +11,24 @@
 // Tasks
 #include "TCP_Server.h"
 #include "Simulator.h"
+#include "Heater.h"
 
 // Libraries
 #include "Command.h"
 #include "Wifi.h"
 #include "SystemTime.h"
+#include "State.h"
 
 #define TAG "main"
 
-#define WIFI true
-#define SERVER true
+#define WIFI false
+#define SERVER false
 #define SIM true
 
 void app_main(void) {
 
     ESP_ERROR_CHECK(nvs_flash_init());
+
 
     if (WIFI) {
         initialize_wifi();
@@ -37,7 +40,9 @@ void app_main(void) {
     }
 
     if (SIM) {
-        xTaskCreate(sim_air_temp_task, "sim_air_temp_task", 4096, NULL, 5, NULL);
+        init_heater_state();
+        xTaskCreate(heater_task, "heater_task", 4096, NULL, 3, NULL);
+        xTaskCreate(sim_air_temp_task, "sim_air_temp_task", 4096, NULL, 3, NULL);
     }
 
     ESP_LOGI(TAG, "The current date/time is: %s", get_timestamp());

@@ -9,7 +9,7 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base,
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
         esp_wifi_connect();
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        if (wifi_event_handler_context->retry_count < MAX_RETRY) {
+        if (wifi_event_handler_context->retry_count < WIFI_MAX_RETRY) {
             esp_wifi_connect();
             wifi_event_handler_context->retry_count++;
             ESP_LOGI(TAG, "Retrying connection to Wi-Fi...");
