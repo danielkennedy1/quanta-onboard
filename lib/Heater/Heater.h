@@ -10,8 +10,9 @@
 extern SemaphoreHandle_t heater_state_mutex;
 
 typedef enum {
-    SET_CONTROL, // Set the heater to ON or OFF
+    SET_POWER, // Set the heater to ON or OFF
     SET_TARGET_TEMP, // Set the target temperature
+    WAIT // Wait for the next control command
 } ControlMode;
 
 typedef struct {

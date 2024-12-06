@@ -2,10 +2,36 @@
 
 #define TAG "Command"
 
-FunctionPointer protocol_function_table[MAX_FUNCTIONS] = {
+FunctionPointer protocol_function_table[UINT8_MAX] = {
     [0x00] = heartbeat,
-    [0x01] = system_time
+    [0x01] = get_system_time,
+    [0x02] = set_temperature_for_duration,
+    [0x03] = set_control_for_duration
 };
+
+Command received_command;
+
+Packet set_temperature_for_duration(const Packet *packet) {
+
+    received_command.data.target_temp = *(float *)packet->payload;
+    received_command.mode = SET_TARGET_TEMP_FOR_DURATION;
+    received_command.duration = *(int *)(packet->payload + sizeof(float));
+
+    ESP_LOGI(TAG, "Setting target temperature to %.2f for %d seconds", received_command.data.target_temp, received_command.duration);
+
+    return (Packet){0};
+}
+
+Packet set_control_for_duration(const Packet *packet) {
+    
+    received_command.data.heater_on = *(bool *)packet->payload;
+    received_command.mode = SET_POWER_FOR_DURATION;
+    received_command.duration = *(int *)(packet->payload + sizeof(bool));
+
+    ESP_LOGI(TAG, "Setting control to %s for %d seconds", received_command.data.heater_on ? "ON" : "OFF", received_command.duration);
+
+    return (Packet){0};
+}
 
 // Process a received packet and return a response packet
 Packet process_packet(const Packet *packet) {
@@ -38,7 +64,7 @@ Packet heartbeat(const Packet *packet) {
     return response;
 }
 
-Packet system_time(const Packet* packet) {
+Packet get_system_time(const Packet* packet) {
     static char system_time[64];
     strncpy(system_time, get_timestamp(), sizeof(system_time) - 1);
 

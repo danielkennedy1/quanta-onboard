@@ -1,5 +1,5 @@
-#ifndef THERMOSTAT_H
-#define THERMOSTAT_H
+#ifndef CONTROLLER_H
+#define CONTROLLER_H
 
 #include "defines.h"
 
@@ -8,10 +8,9 @@
 
 #include "esp_log.h"
 
-#include "Heater.h"
 #include "Command.h"
+#include "Heater.h"
 
-void thermostat_task(void *pvParameters);
+void controller_task(void *pvParameters);
 
-
-#endif // THERMOSTAT_H
+#endif // CONTROLLER_H

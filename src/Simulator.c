@@ -6,6 +6,7 @@ float air_temp = SIM_AIR_INITIAL_TEMP; // Air temperature (Celsius)
 
 void sim_air_temp_task(void *pvParameters) {
     while (1) {
+        ESP_LOGI(TAG, "Simulator task running");
         HeaterState state = get_heater_state();
         // Step simulation
 

@@ -19,6 +19,7 @@
         "time.h": "c",
         "sntp.h": "c",
         "simulator.h": "c",
-        "thermostat.h": "c"
+        "thermostat.h": "c",
+        "controller.h": "c"
     }
 }

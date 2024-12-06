@@ -12,6 +12,7 @@
 #include "TCP_Server.h"
 #include "Simulator.h"
 #include "Thermostat.h"
+#include "Controller.h"
 
 // Libraries
 #include "Command.h"
@@ -21,14 +22,13 @@
 
 #define TAG "main"
 
-#define WIFI false
-#define SERVER false
+#define WIFI true
+#define SERVER true
 #define SIM true
 
 void app_main(void) {
 
     ESP_ERROR_CHECK(nvs_flash_init());
-
 
     if (WIFI) {
         initialize_wifi();
@@ -41,9 +41,29 @@ void app_main(void) {
     }
 
     if (SIM) {
+        QueueHandles queue_handles = {
+            .command_queue = xQueueCreate(10, sizeof(Command)),
+            .air_temp_queue = xQueueCreate(10, sizeof(float))
+        };
+
         init_heater_state();
-        xTaskCreate(thermostat_task, "thermostat_task", 4096, NULL, 3, NULL);
+        xTaskCreate(thermostat_task, "thermostat_task", 4096, &queue_handles, 3, NULL);
+        xTaskCreate(controller_task, "controller_task", 4096, &queue_handles, 3, NULL);
         xTaskCreate(sim_air_temp_task, "sim_air_temp_task", 4096, NULL, 3, NULL);
+
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+        Command command = {
+            .mode = SET_TARGET_TEMP_FOR_DURATION,
+            .data.target_temp = 30.0,
+            .duration = 10
+        };
+
+        xQueueSend(queue_handles.command_queue, &command, 0);
+
+        command.duration = 20;
+
+        xQueueSend(queue_handles.command_queue, &command, 0);
     }
 
 

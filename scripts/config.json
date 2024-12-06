@@ -1,0 +1,15 @@
+{
+    "protocol": {
+        "start_byte": "0x02"
+    },
+    "network": {
+        "host": "192.168.0.174",
+        "port": 1234
+    },
+    "commands": {
+        "heartbeat": "0x00",
+        "get_system_time": "0x01",
+        "set_temperature_for_duration": "0x02",
+        "set_control_for_duration": "0x03"
+    }
+}

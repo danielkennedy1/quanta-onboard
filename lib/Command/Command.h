@@ -10,12 +10,33 @@
 #include "Protocol.h"
 #include "SystemTime.h"
 
-#define MAX_FUNCTIONS 16 // Theoretical maximum number of functions: 256
+typedef enum {
+    SET_POWER_FOR_DURATION, // Set the heater to ON or OFF
+    SET_TARGET_TEMP_FOR_DURATION, // Set the target temperature
+} CommandType;
+
+typedef union {
+    bool heater_on;
+    float target_temp;
+} CommandData;
+
+typedef struct {
+    CommandType mode;
+    CommandData data;
+    int duration; // Duration of the command (in seconds)
+} Command;
+
+typedef struct {
+    QueueHandle_t command_queue;
+    QueueHandle_t air_temp_queue;
+} QueueHandles;
 
 typedef Packet (*FunctionPointer)(const Packet *packet);
 
 Packet heartbeat(const Packet *packet);
-Packet system_time(const Packet *packet);
+Packet get_system_time(const Packet *packet);
+Packet set_temperature_for_duration(const Packet *packet);
+Packet set_control_for_duration(const Packet *packet);
 
 /*
     Function table
