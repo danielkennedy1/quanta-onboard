@@ -21,13 +21,13 @@
  * Total packet size: 259 bytes 
  */
 typedef struct {
-    uint8_t start_byte;     // Start byte (byte 0)
-    uint8_t function_flag;  // Function selector (byte 1)
-    uint8_t payload_size;   // Size of the payload in bytes (byte 2)
-    uint8_t payload[UINT8_MAX];   // Payload for function parameters (bytes 3 - 258)
+    uint8_t start_byte;             // Start byte (byte 0)
+    uint8_t function_flag;          // Function selector (byte 1)
+    uint8_t payload_size;           // Size of the payload in bytes (byte 2)
+    uint8_t payload[UINT8_MAX];     // Payload for function parameters (bytes 3 - 258)
 } Packet;
 
-// Functions to convert CommandPacket to and from bytes
+// Function to convert CommandPacket to bytes
 uint8_t* to_bytes(Packet command_packet);
 
 // Function to convert bytes to CommandPacket (WARNING: MEMORY ALLOCATED FOR RETURNED POINTER)

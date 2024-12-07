@@ -59,12 +59,13 @@ void app_main(void) {
             .duration = 10
         };
 
+        ESP_LOGW(TAG, "Sending 1st command");
         xQueueSend(queue_handles.command_queue, &command, 0);
 
-        command.duration = 20;
+        command.data.target_temp = 35.0;
 
+        ESP_LOGW(TAG, "Sending 2nd command");
         xQueueSend(queue_handles.command_queue, &command, 0);
     }
-
 
 }

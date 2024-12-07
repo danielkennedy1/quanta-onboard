@@ -10,7 +10,6 @@
 #include "Heater.h"
 #include "Thermostat.h"
 
-
 void sim_air_temp_task(void *pvParameters);
 
 #endif // SIMULATOR_H

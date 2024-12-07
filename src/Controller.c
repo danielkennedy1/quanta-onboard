@@ -12,7 +12,15 @@ void controller_task(void *pvParameters){
     {
         ESP_LOGI(TAG, "Controller task running");
         ESP_LOGI(TAG, "Waiting for command");
-        if (xQueueReceive(queue_handles->command_queue, &command, portMAX_DELAY) == pdTRUE)
+
+        if (queue_handles->command_queue == NULL)
+        {
+            ESP_LOGE(TAG, "Command queue is NULL");
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            continue;
+        }
+
+        if (xQueueReceive(queue_handles->command_queue, &command, 1000) == pdTRUE)
         {
             ESP_LOGI(TAG, "Received command");
             HeaterState state = get_heater_state();

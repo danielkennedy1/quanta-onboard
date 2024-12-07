@@ -13,5 +13,4 @@
 
 void thermostat_task(void *pvParameters);
 
-
 #endif // THERMOSTAT_H
