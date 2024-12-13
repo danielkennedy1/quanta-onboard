@@ -22,8 +22,8 @@
 
 #define TAG "main"
 
-#define WIFI true
-#define SERVER true
+#define WIFI false
+#define SERVER false
 #define SIM true
 
 void app_main(void) {
@@ -61,11 +61,14 @@ void app_main(void) {
 
         ESP_LOGW(TAG, "Sending 1st command");
         xQueueSend(queue_handles.command_queue, &command, 0);
-
         command.data.target_temp = 35.0;
 
         ESP_LOGW(TAG, "Sending 2nd command");
         xQueueSend(queue_handles.command_queue, &command, 0);
+
+
+        vTaskDelay(3000 / portTICK_PERIOD_MS);
+
     }
 
 }

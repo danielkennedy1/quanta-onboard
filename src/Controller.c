@@ -2,25 +2,27 @@
 
 #define TAG "Controller"
 
-Command command;
+static QueueHandles queue_handles;
 
 void controller_task(void *pvParameters){
     
-    QueueHandles *queue_handles = (QueueHandles *)pvParameters;
+    queue_handles = *(QueueHandles *)pvParameters;
 
     while (1)
     {
         ESP_LOGI(TAG, "Controller task running");
         ESP_LOGI(TAG, "Waiting for command");
 
-        if (queue_handles->command_queue == NULL)
+        if (queue_handles.command_queue == NULL)
         {
             ESP_LOGE(TAG, "Command queue is NULL");
             vTaskDelay(1000 / portTICK_PERIOD_MS);
             continue;
         }
 
-        if (xQueueReceive(queue_handles->command_queue, &command, 1000) == pdTRUE)
+        Command command;
+
+        if (xQueueReceive(queue_handles.command_queue, &command, 0) == pdTRUE)
         {
             ESP_LOGI(TAG, "Received command");
             HeaterState state = get_heater_state();
@@ -40,6 +42,10 @@ void controller_task(void *pvParameters){
             }
 
             set_heater_state(state);
+        } else {
+            ESP_LOGW(TAG, "No command received");
         }
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
