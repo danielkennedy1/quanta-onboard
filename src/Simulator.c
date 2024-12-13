@@ -9,7 +9,6 @@ void sim_air_temp_task(void *pvParameters) {
         ESP_LOGI(TAG, "Simulator task running");
         HeaterState state = get_heater_state();
         // Step simulation
-
         float delta_joules = state.heater_on ? HEATER_WATTAGE : 0 - SIM_AIR_HEAT_TRANSFER;
         air_temp += delta_joules * SIM_TIME_INTERVAL / SIM_AIR_HEAT_CAPACITY;
 

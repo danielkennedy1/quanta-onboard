@@ -9,6 +9,7 @@
 #include "esp_log.h"
 
 #include "Command.h"
+#include "Thermostat.h"
 #include "Heater.h"
 
 void controller_task(void *pvParameters);

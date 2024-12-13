@@ -67,7 +67,9 @@ void app_main(void) {
         xQueueSend(queue_handles.command_queue, &command, 0);
 
 
-        vTaskDelay(3000 / portTICK_PERIOD_MS);
+        while (1) {
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+        }
 
     }
 
