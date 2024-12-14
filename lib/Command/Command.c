@@ -9,45 +9,44 @@ FunctionPointer protocol_function_table[UINT8_MAX] = {
     [0x03] = set_control_for_duration
 };
 
-Command received_command;
+Packet set_temperature_for_duration(const Packet *packet, Command *command) {
+    command->written = true;
 
-Packet set_temperature_for_duration(const Packet *packet) {
+    command->mode = SET_TARGET_TEMP_FOR_DURATION;
+    command->data.target_temp = *(float *)packet->payload;
+    command->duration = *(int *)(packet->payload + sizeof(float));
 
-    received_command.data.target_temp = *(float *)packet->payload;
-    received_command.mode = SET_TARGET_TEMP_FOR_DURATION;
-    received_command.duration = *(int *)(packet->payload + sizeof(float));
-
-    ESP_LOGI(TAG, "Setting target temperature to %.2f for %d seconds", received_command.data.target_temp, received_command.duration);
+    ESP_LOGI(TAG, "Setting target temperature to %.2f for %d seconds", command->data.target_temp, command->duration);
 
     return (Packet){0};
 }
 
-Packet set_control_for_duration(const Packet *packet) {
-    
-    received_command.data.heater_on = *(bool *)packet->payload;
-    received_command.mode = SET_POWER_FOR_DURATION;
-    received_command.duration = *(int *)(packet->payload + sizeof(bool));
+Packet set_control_for_duration(const Packet *packet, Command *command) {
+    command->written = true;
+    command->data.heater_on = *(bool *)packet->payload;
+    command->mode = SET_POWER_FOR_DURATION;
+    command->duration = *(int *)(packet->payload + sizeof(bool));
 
-    ESP_LOGI(TAG, "Setting control to %s for %d seconds", received_command.data.heater_on ? "ON" : "OFF", received_command.duration);
+    ESP_LOGI(TAG, "Setting control to %s for %d seconds", command->data.heater_on ? "ON" : "OFF", command->duration);
 
     return (Packet){0};
 }
 
 // Process a received packet and return a response packet
-Packet process_packet(const Packet *packet) {
+Packet process_packet(const Packet *packet, Command *command) {
 
     ESP_LOGI(TAG, "Processing packet");
     // Call the corresponding function
     FunctionPointer func = protocol_function_table[packet->function_flag];
     if (func) {
-        return func(packet); // Pass the packet to the function
+        return func(packet, command); // Pass the packet to the function
     } else {
         printf("Error: Function not found for flag 0x%02X\n", packet->function_flag);
         return (Packet){0}; // Return an empty packet in case of error
     }
 }
 
-Packet heartbeat(const Packet *packet) {
+Packet heartbeat(const Packet *packet, Command *command) {
     const char heartbeat_message[] = "HEARTBEAT";
 
     Packet response = {
@@ -64,7 +63,7 @@ Packet heartbeat(const Packet *packet) {
     return response;
 }
 
-Packet get_system_time(const Packet* packet) {
+Packet get_system_time(const Packet* packet, Command* command) {
     static char system_time[64];
     strncpy(system_time, get_timestamp(), sizeof(system_time) - 1);
 

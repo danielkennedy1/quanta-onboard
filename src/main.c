@@ -22,13 +22,18 @@
 
 #define TAG "main"
 
-#define WIFI false
-#define SERVER false
+#define WIFI true
+#define SERVER true
 #define SIM true
 
 void app_main(void) {
 
     ESP_ERROR_CHECK(nvs_flash_init());
+
+    QueueHandles queue_handles = {
+        .command_queue = xQueueCreate(10, sizeof(Command)),
+        .air_temp_queue = xQueueCreate(10, sizeof(float))
+    };
 
     if (WIFI) {
         initialize_wifi();
@@ -37,14 +42,11 @@ void app_main(void) {
     ESP_LOGI(TAG, "The current date/time is: %s", get_timestamp());
 
     if (SERVER) {
-        xTaskCreate(tcp_server_task, "tcp_server_task", 4096, NULL, 5, NULL);
+        xTaskCreate(tcp_server_task, "tcp_server_task", 4096, &queue_handles, 5, NULL);
     }
 
     if (SIM) {
-        QueueHandles queue_handles = {
-            .command_queue = xQueueCreate(10, sizeof(Command)),
-            .air_temp_queue = xQueueCreate(10, sizeof(float))
-        };
+
 
         init_heater_state();
         init_thermostat_state();

@@ -24,6 +24,7 @@ typedef struct {
     CommandType mode;
     CommandData data;
     int duration; // Duration of the command (in seconds)
+    bool written; // Flag to indicate if the command has been written
 } Command;
 
 typedef struct {
@@ -31,12 +32,12 @@ typedef struct {
     QueueHandle_t air_temp_queue;
 } QueueHandles;
 
-typedef Packet (*FunctionPointer)(const Packet *packet);
+typedef Packet (*FunctionPointer)(const Packet *packet, Command *command);
 
-Packet heartbeat(const Packet *packet);
-Packet get_system_time(const Packet *packet);
-Packet set_temperature_for_duration(const Packet *packet);
-Packet set_control_for_duration(const Packet *packet);
+Packet heartbeat(const Packet *packet, Command *command);
+Packet get_system_time(const Packet *packet, Command *command);
+Packet set_temperature_for_duration(const Packet *packet, Command *command);
+Packet set_control_for_duration(const Packet *packet, Command *command);
 
 /*
     Function table
@@ -44,7 +45,7 @@ Packet set_control_for_duration(const Packet *packet);
 */
 extern FunctionPointer protocol_function_table[];
 
-// Process a received packet and return a response packet
-Packet process_packet(const Packet *packet);
+// Process a received packet, write a command and return a response packet
+Packet process_packet(const Packet *packet, Command *command);
 
 #endif // COMMAND_H

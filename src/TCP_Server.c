@@ -2,8 +2,13 @@
 
 #define TAG "TCP_Server"
 
+static QueueHandles queue_handles;
+
 // TCP server task
 void tcp_server_task(void *pvParameters) {
+
+    queue_handles = *(QueueHandles *)pvParameters;
+
     int listen_sock, client_sock;
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_len = sizeof(client_addr);
@@ -64,7 +69,20 @@ void tcp_server_task(void *pvParameters) {
             ESP_LOGI(TAG, "Received %d bytes", received);
 
             Packet* received_packet = from_bytes(buffer, received);
-            Packet response = process_packet(received_packet);
+
+            Command* received_command = malloc(sizeof(Command));
+            *received_command = (Command){
+                .written = false
+            };
+            Packet response = process_packet(received_packet, received_command);
+
+            if (received_command->written) {
+                // Send command to controller
+                ESP_LOGI(TAG, "Sending command to controller");
+                if (xQueueSend(queue_handles.command_queue, received_command, 0) != pdTRUE) {
+                    ESP_LOGE(TAG, "Error sending command to controller");
+                }
+            }
 
             uint8_t* response_bytes = to_bytes(response);
 
@@ -77,6 +95,7 @@ void tcp_server_task(void *pvParameters) {
             ESP_LOGI(TAG, "Returned response");
 
             free(received_packet);
+            free(received_command);
             free(response_bytes);
         }
 
