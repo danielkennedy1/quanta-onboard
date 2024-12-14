@@ -104,12 +104,12 @@ bool get_next_minute_average_air_temp(float* average_air_temp, time_t* timestamp
 
     // read head is behind write head
     if (air_temp_buffer.read_head <= air_temp_buffer.write_head) {
-        minute_of_data_available = (air_temp_buffer.write_head - air_temp_buffer.read_head) >= SECONDS_IN_MINUTE;
+        minute_of_data_available = (air_temp_buffer.write_head - air_temp_buffer.read_head) >= AGG_SAMPLES_PER_METRIC;
     }
 
     // read head is ahead of write head
     if (air_temp_buffer.read_head > air_temp_buffer.write_head) {
-        minute_of_data_available = (BUFFER_SIZE - air_temp_buffer.read_head + air_temp_buffer.write_head) >= SECONDS_IN_MINUTE;
+        minute_of_data_available = (BUFFER_SIZE - air_temp_buffer.read_head + air_temp_buffer.write_head) >= AGG_SAMPLES_PER_METRIC;
     }
 
     if (!minute_of_data_available) {
@@ -121,13 +121,13 @@ bool get_next_minute_average_air_temp(float* average_air_temp, time_t* timestamp
     *timestamp = oldest_air_temp_time - 1; // Subtract 1 to get the timestamp of the oldest data point extracted
 
     
-    for (int i = 0; i < SECONDS_IN_MINUTE; i++) {
+    for (int i = 0; i < AGG_SAMPLES_PER_METRIC; i++) {
         float air_temp;
         read_air_temp(&air_temp);
         sum += air_temp;
     }
 
-    *average_air_temp = sum / SECONDS_IN_MINUTE;
+    *average_air_temp = sum / AGG_SAMPLES_PER_METRIC;
 
     return true;
 }
@@ -142,12 +142,12 @@ bool get_next_minute_uptime(float* uptime, time_t* timestamp) {
 
     // read head is behind write head
     if (power_state_buffer.read_head <= power_state_buffer.write_head) {
-        minute_of_data_available = (power_state_buffer.write_head - power_state_buffer.read_head) >= SECONDS_IN_MINUTE;
+        minute_of_data_available = (power_state_buffer.write_head - power_state_buffer.read_head) >= AGG_SAMPLES_PER_METRIC;
     }
 
     // read head is ahead of write head
     if (power_state_buffer.read_head > power_state_buffer.write_head) {
-        minute_of_data_available = (BUFFER_SIZE - power_state_buffer.read_head + power_state_buffer.write_head) >= SECONDS_IN_MINUTE;
+        minute_of_data_available = (BUFFER_SIZE - power_state_buffer.read_head + power_state_buffer.write_head) >= AGG_SAMPLES_PER_METRIC;
     }
 
     if (!minute_of_data_available) {
@@ -159,13 +159,13 @@ bool get_next_minute_uptime(float* uptime, time_t* timestamp) {
     *timestamp = oldest_power_state_time - 1; // Subtract 1 to get the timestamp of the oldest data point extracted
 
 
-    for (int i = 0; i < SECONDS_IN_MINUTE; i++) {
+    for (int i = 0; i < AGG_SAMPLES_PER_METRIC; i++) {
         bool power_state;
         read_power_state(&power_state);
         uptime_count += power_state;
     }
 
-    *uptime = (float)uptime_count / SECONDS_IN_MINUTE;
+    *uptime = (float)uptime_count / AGG_SAMPLES_PER_METRIC;
 
     return true;
 }
