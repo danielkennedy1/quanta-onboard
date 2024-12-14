@@ -4,6 +4,8 @@
 #include "defines.h"
 
 #include <stdbool.h>
+#include <time.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 

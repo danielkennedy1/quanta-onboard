@@ -21,6 +21,7 @@
         "simulator.h": "c",
         "thermostat.h": "c",
         "controller.h": "c",
-        "heater.h": "c"
+        "heater.h": "c",
+        "systemtime.h": "c"
     }
 }

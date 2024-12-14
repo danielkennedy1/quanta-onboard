@@ -4,11 +4,13 @@
 
 SemaphoreHandle_t air_temp_buffer_mutex;
 FloatBuffer air_temp_buffer;
+time_t oldest_air_temp_time;
 
 SemaphoreHandle_t power_state_buffer_mutex;
 BoolBuffer power_state_buffer;
+time_t oldest_power_state_time;
 
-void init_state_buffer() {
+void init_state_buffer(time_t current_time) {
     ESP_LOGI(TAG, "Initializing aggregator");
 
     air_temp_buffer_mutex = xSemaphoreCreateMutex();
@@ -16,6 +18,7 @@ void init_state_buffer() {
     air_temp_buffer.read_head = 0;
     air_temp_buffer.write_head = 0;
     air_temp_buffer.is_empty = true;
+    oldest_air_temp_time = current_time;
     xSemaphoreGive(air_temp_buffer_mutex);
 
     power_state_buffer_mutex = xSemaphoreCreateMutex();
@@ -23,6 +26,7 @@ void init_state_buffer() {
     power_state_buffer.read_head = 0;
     power_state_buffer.write_head = 0;
     power_state_buffer.is_empty = true;
+    oldest_power_state_time = current_time;
     xSemaphoreGive(power_state_buffer_mutex);
 }
 
@@ -35,6 +39,7 @@ void add_air_temp(float air_temp) {
 
     if (air_temp_buffer.write_head == air_temp_buffer.read_head) {
         air_temp_buffer.read_head = (air_temp_buffer.read_head + 1) % (BUFFER_SIZE);
+        oldest_air_temp_time++;
     }
     xSemaphoreGive(air_temp_buffer_mutex);
 }
@@ -51,6 +56,7 @@ bool read_air_temp(float* air_temp) {
     *air_temp = air_temp_buffer.buffer[air_temp_buffer.read_head];
     air_temp_buffer.read_head = (air_temp_buffer.read_head + 1) % (BUFFER_SIZE);
     air_temp_buffer.is_empty = (air_temp_buffer.read_head == air_temp_buffer.write_head);
+    oldest_air_temp_time++;
 
     xSemaphoreGive(air_temp_buffer_mutex);
     return true;
@@ -65,6 +71,7 @@ void add_power_state(bool power_state) {
 
     if (power_state_buffer.write_head == power_state_buffer.read_head) {
         power_state_buffer.read_head = (power_state_buffer.read_head + 1) % (BUFFER_SIZE);
+        oldest_power_state_time++;
     }
     xSemaphoreGive(power_state_buffer_mutex);
 }
@@ -81,12 +88,13 @@ bool read_power_state(bool* power_state) {
     *power_state = power_state_buffer.buffer[power_state_buffer.read_head];
     power_state_buffer.read_head = (power_state_buffer.read_head + 1) % (BUFFER_SIZE);
     power_state_buffer.is_empty = (power_state_buffer.read_head == power_state_buffer.write_head);
+    oldest_power_state_time++;
 
     xSemaphoreGive(power_state_buffer_mutex);
     return true;
 }
 
-bool get_next_minute_average_air_temp(float* average_air_temp) {
+bool get_next_minute_average_air_temp(float* average_air_temp, time_t* timestamp) {
     if (air_temp_buffer.is_empty) {
         ESP_LOGE(TAG, "Air temp buffer is empty");
         return false;
@@ -110,9 +118,13 @@ bool get_next_minute_average_air_temp(float* average_air_temp) {
     }
 
     float sum = 0;
+    *timestamp = oldest_air_temp_time - 1; // Subtract 1 to get the timestamp of the oldest data point extracted
+
     
     for (int i = 0; i < SECONDS_IN_MINUTE; i++) {
-        sum += air_temp_buffer.buffer[(air_temp_buffer.read_head + i) % BUFFER_SIZE];
+        float air_temp;
+        read_air_temp(&air_temp);
+        sum += air_temp;
     }
 
     *average_air_temp = sum / SECONDS_IN_MINUTE;
@@ -120,7 +132,7 @@ bool get_next_minute_average_air_temp(float* average_air_temp) {
     return true;
 }
 
-bool get_next_minute_uptime(float* uptime) {
+bool get_next_minute_uptime(float* uptime, time_t* timestamp) {
     if (power_state_buffer.is_empty) {
         ESP_LOGE(TAG, "Power state buffer is empty");
         return false;
@@ -144,9 +156,13 @@ bool get_next_minute_uptime(float* uptime) {
     }
 
     int uptime_count = 0;
+    *timestamp = oldest_power_state_time - 1; // Subtract 1 to get the timestamp of the oldest data point extracted
+
 
     for (int i = 0; i < SECONDS_IN_MINUTE; i++) {
-        uptime_count += power_state_buffer.buffer[(power_state_buffer.read_head + i) % BUFFER_SIZE];
+        bool power_state;
+        read_power_state(&power_state);
+        uptime_count += power_state;
     }
 
     *uptime = (float)uptime_count / SECONDS_IN_MINUTE;
