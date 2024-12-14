@@ -9,6 +9,7 @@
 
 #include "Protocol.h"
 #include "SystemTime.h"
+#include "StateBuffer.h"
 
 typedef enum {
     SET_POWER_FOR_DURATION, // Set the heater to ON or OFF
@@ -38,6 +39,8 @@ Packet heartbeat(const Packet *packet, Command *command);
 Packet get_system_time(const Packet *packet, Command *command);
 Packet set_temperature_for_duration(const Packet *packet, Command *command);
 Packet set_control_for_duration(const Packet *packet, Command *command);
+Packet get_temperature_for_minute(const Packet *packet, Command *command);
+Packet get_uptime_for_minute(const Packet *packet, Command *command);
 
 /*
     Function table

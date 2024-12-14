@@ -13,6 +13,7 @@
 #include "Simulator.h"
 #include "Thermostat.h"
 #include "Controller.h"
+#include "Aggregator.h"
 
 // Libraries
 #include "Command.h"
@@ -58,6 +59,8 @@ void app_main(void) {
 
 
         xTaskCreate(sim_air_temp_task, "sim_air_temp_task", 4096, NULL, 3, NULL);
+
+        xTaskCreate(aggregator_task, "aggregator_task", 4096, NULL, 3, NULL);
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
 

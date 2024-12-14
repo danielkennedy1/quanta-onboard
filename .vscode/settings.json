@@ -22,6 +22,8 @@
         "thermostat.h": "c",
         "controller.h": "c",
         "heater.h": "c",
-        "systemtime.h": "c"
+        "systemtime.h": "c",
+        "freertos.h": "c",
+        "statebuffer.h": "c"
     }
 }

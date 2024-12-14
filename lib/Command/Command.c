@@ -6,7 +6,9 @@ FunctionPointer protocol_function_table[UINT8_MAX] = {
     [0x00] = heartbeat,
     [0x01] = get_system_time,
     [0x02] = set_temperature_for_duration,
-    [0x03] = set_control_for_duration
+    [0x03] = set_control_for_duration,
+    [0x04] = get_temperature_for_minute,
+    [0x05] = get_uptime_for_minute
 };
 
 Packet set_temperature_for_duration(const Packet *packet, Command *command) {
@@ -84,4 +86,44 @@ Packet get_system_time(const Packet* packet, Command* command) {
     ESP_LOGI(TAG, "Returning payload size: %d", response.payload_size);
 
     return response;
+}
+
+Packet get_temperature_for_minute(const Packet *packet, Command *command) {
+    time_t timestamp;
+    float avg_temp;
+
+    if (get_next_minute_average_air_temp(&avg_temp, &timestamp)) {
+        Packet response = {
+            .start_byte = TX_START_BYTE,
+            .function_flag = packet->function_flag,
+            .payload_size = sizeof(timestamp) + sizeof(avg_temp)
+        };
+
+        memcpy(response.payload, &timestamp, sizeof(timestamp));
+        memcpy(response.payload + sizeof(timestamp), &avg_temp, sizeof(avg_temp));
+
+        return response;
+    } else {
+        return (Packet){0};
+    }
+}
+
+Packet get_uptime_for_minute(const Packet *packet, Command *command) {
+    time_t timestamp;
+    float uptime;
+
+    if (get_next_minute_uptime(&uptime, &timestamp)) {
+        Packet response = {
+            .start_byte = TX_START_BYTE,
+            .function_flag = packet->function_flag,
+            .payload_size = sizeof(timestamp) + sizeof(uptime)
+        };
+
+        memcpy(response.payload, &timestamp, sizeof(timestamp));
+        memcpy(response.payload + sizeof(timestamp), &uptime, sizeof(uptime));
+
+        return response;
+    } else {
+        return (Packet){0};
+    }
 }

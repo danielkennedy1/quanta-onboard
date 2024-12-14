@@ -7,7 +7,7 @@ PORT = 1234  # Port to which ESP32 is listening
 START_BYTE = 0x02
 
 # Send message to ESP32
-def send_packet_to_esp32(packet: bytes, expext_response = True):
+def send_packet_to_esp32(packet: bytes, expext_response = True) -> None | bytes:
     try:
         # Create a socket and connect to the ESP32 server
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -25,7 +25,13 @@ def send_packet_to_esp32(packet: bytes, expext_response = True):
                 print(f"start_byte: {response[0]:02X}")
                 print(f"function_id: {response[1]:02X}")
                 print(f"length: {response[2]}")
-                print(f"payload: {response[3:-1].decode()}")
+                payload = response[3:-1]
+                print(f"payload (hex): {' '.join(f'{byte:02X}' for byte in payload)}")
+                try:
+                    print(f"payload (ascii): {payload.decode('ascii')}")
+                except UnicodeDecodeError:
+                    print("payload (ascii): <non-ascii data>")
+                return payload
 
     except Exception as e:
         print(f"Error: {e}")
