@@ -14,7 +14,9 @@ void test_heartbeat() {
 
     Packet* rx_packet = from_bytes(bytes, PACKET_SIZE);
 
-    Packet processed_packet = process_packet(rx_packet);
+    Command* command = malloc(sizeof(Command));
+
+    Packet processed_packet = process_packet(rx_packet, command);
 
     TEST_ASSERT_EQUAL_HEX8(TX_START_BYTE, processed_packet.start_byte);
     TEST_ASSERT_EQUAL_HEX8(0x00, processed_packet.function_flag);
