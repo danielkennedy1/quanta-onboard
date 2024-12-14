@@ -16,6 +16,6 @@ void aggregator_task(void *pvParameters) {
         add_air_temp(state.current_temp);
         add_power_state(state.heater_on);
 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay((1000 / AGG_SAMPLES_PER_SECOND) / portTICK_PERIOD_MS);
     }
 }

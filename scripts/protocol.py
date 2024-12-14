@@ -4,5 +4,5 @@ protocol_function_table = {
     "set_temperature_for_duration": 0x02,
     "set_control_for_duration": 0x03,
     "get_avg_temperature_for_minute": 0x04,
-    "get_control_for_minute": 0x05,
+    "get_uptime_for_minute": 0x05,
 }

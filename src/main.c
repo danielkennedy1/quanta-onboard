@@ -4,7 +4,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-// ESP32 libraries
+// ESP32
 #include "esp_log.h"
 #include "nvs_flash.h"
 
@@ -24,8 +24,6 @@
 #define TAG "main"
 
 #define WIFI true
-#define SERVER true
-#define SIM true
 
 void app_main(void) {
 
@@ -39,46 +37,20 @@ void app_main(void) {
     if (WIFI) {
         initialize_wifi();
         initialize_system_time();
-    }
-    ESP_LOGI(TAG, "The current date/time is: %s", get_timestamp());
-
-    if (SERVER) {
         xTaskCreate(tcp_server_task, "tcp_server_task", 4096, &queue_handles, 5, NULL);
     }
 
-    if (SIM) {
+    ESP_LOGI(TAG, "The current date/time is: %s", get_timestamp());
+
+    init_heater_state();
+    init_thermostat_state();
+    xTaskCreate(thermostat_task, "thermostat_task", 4096, NULL, 3, NULL);
+
+    TaskHandle_t controller_task_handle;
+    xTaskCreate(controller_task, "controller_task", 4096, &queue_handles, 3, &controller_task_handle);
+    init_timer(controller_task_handle);
 
 
-        init_heater_state();
-        init_thermostat_state();
-        xTaskCreate(thermostat_task, "thermostat_task", 4096, &queue_handles, 3, NULL);
-
-        TaskHandle_t controller_task_handle;
-        xTaskCreate(controller_task, "controller_task", 4096, &queue_handles, 3, &controller_task_handle);
-        init_timer(controller_task_handle);
-
-
-        xTaskCreate(sim_air_temp_task, "sim_air_temp_task", 4096, NULL, 3, NULL);
-
-        xTaskCreate(aggregator_task, "aggregator_task", 4096, NULL, 3, NULL);
-
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-        Command command = {
-            .mode = SET_TARGET_TEMP_FOR_DURATION,
-            .data.target_temp = 30.0,
-            .duration = 10
-        };
-
-        ESP_LOGW(TAG, "Sending 1st command");
-        xQueueSend(queue_handles.command_queue, &command, 0);
-        command.data.target_temp = 35.0;
-
-        ESP_LOGW(TAG, "Sending 2nd command");
-        xQueueSend(queue_handles.command_queue, &command, 0);
-
-        while (1) {
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-        }
-    }
+    xTaskCreate(sim_air_temp_task, "sim_air_temp_task", 4096, NULL, 4, NULL);
+    xTaskCreate(aggregator_task, "aggregator_task", 4096, NULL, 3, NULL);
 }

@@ -1,6 +1,8 @@
 #ifndef STATEBUFFER_H
 #define STATEBUFFER_H
 
+#include "defines.h"
+
 #include <stdlib.h>
 #include <time.h>
 
@@ -9,10 +11,7 @@
 
 #include "esp_log.h"
 
-#define SECONDS_IN_MINUTE 60
-#define MINUTES_TO_STORE 10
-
-#define BUFFER_SIZE (MINUTES_TO_STORE * SECONDS_IN_MINUTE)
+#define BUFFER_SIZE (AGG_SAMPLES_PER_METRIC * AGG_METRICS_TO_STORE)
 
 typedef struct {
     bool buffer[BUFFER_SIZE];

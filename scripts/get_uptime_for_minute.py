@@ -4,7 +4,7 @@ import struct
 from datetime import datetime
 
 if __name__ == "__main__":
-    packet = send.construct_packet(protocol.protocol_function_table["get_avg_temperature_for_minute"], b"")
+    packet = send.construct_packet(protocol.protocol_function_table["get_uptime_for_minute"], b"")
 
     payload = send.send_packet_to_esp32(packet)
 

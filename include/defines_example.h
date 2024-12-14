@@ -33,4 +33,9 @@
 #define SIM_AIR_TEMP_MAX 100.0 // Maximum air temperature (Celsius)
 #define SIM_TIME_INTERVAL 1 // Time interval (s)
 
+// Data aggregation configuration
+#define AGG_SAMPLES_PER_SECOND 1 // Number of samples per second (1 second)
+#define AGG_SAMPLES_PER_METRIC 60 // Number of samples per metric (1 minute)
+#define AGG_METRICS_TO_STORE 10   // Number of metrics to store (10 minutes)
+
 #endif // DEFINES_H
