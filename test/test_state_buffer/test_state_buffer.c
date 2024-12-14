@@ -2,15 +2,15 @@
 #include "defines.h"
 #include "StateBuffer.h"
 
-float air_temps[SECONDS_IN_MINUTE];
-bool power_states[SECONDS_IN_MINUTE];
+float air_temps[AGG_SAMPLES_PER_METRIC];
+bool power_states[AGG_SAMPLES_PER_METRIC];
 
 void setUp() {
     init_state_buffer(time(NULL));
 }
 
 void test_insufficient_data() {
-    for (int i = 0; i < SECONDS_IN_MINUTE - 1; i++) {
+    for (int i = 0; i < AGG_SAMPLES_PER_METRIC - 1; i++) {
         add_air_temp((float)i);
         air_temps[i] = (float)i;
 
@@ -28,7 +28,7 @@ void test_insufficient_data() {
 }
 
 void test_averaging() {
-    for (int i = 0; i < SECONDS_IN_MINUTE; i++) {
+    for (int i = 0; i < AGG_SAMPLES_PER_METRIC; i++) {
         add_air_temp((float)i);
         air_temps[i] = (float)i;
 
@@ -46,17 +46,17 @@ void test_averaging() {
 
     // Test that the average air temperature is correct
     float sum = 0;
-    for (int i = 0; i < SECONDS_IN_MINUTE; i++) {
+    for (int i = 0; i < AGG_SAMPLES_PER_METRIC; i++) {
         sum += air_temps[i];
     }
-    TEST_ASSERT_EQUAL_FLOAT(sum / SECONDS_IN_MINUTE, average_air_temp);
+    TEST_ASSERT_EQUAL_FLOAT(sum / AGG_SAMPLES_PER_METRIC, average_air_temp);
 
     // Test that the uptime is correct
     int count = 0;
-    for (int i = 0; i < SECONDS_IN_MINUTE; i++) {
+    for (int i = 0; i < AGG_SAMPLES_PER_METRIC; i++) {
         count += power_states[i];
     }
-    TEST_ASSERT_EQUAL_FLOAT((float)count / SECONDS_IN_MINUTE, uptime);
+    TEST_ASSERT_EQUAL_FLOAT((float)count / AGG_SAMPLES_PER_METRIC, uptime);
 }
 
 void test_time_keeping() {
@@ -64,7 +64,7 @@ void test_time_keeping() {
 
     init_state_buffer(start_time);
 
-    for (int i = 0; i < SECONDS_IN_MINUTE * MINUTES_TO_STORE; i++) {
+    for (int i = 0; i < AGG_SAMPLES_PER_METRIC * AGG_METRICS_TO_STORE; i++) {
         add_air_temp((float)i);
         add_power_state(i % 2 == 0);
     }
