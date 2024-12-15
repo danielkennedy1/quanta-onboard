@@ -47,10 +47,7 @@ void app_main(void) {
 
     ESP_ERROR_CHECK(nvs_flash_init());
 
-    QueueHandles queue_handles = {
-        .command_queue = xQueueCreate(10, sizeof(Command)),
-        .air_temp_queue = xQueueCreate(10, sizeof(float))
-    };
+    QueueHandle_t command_queue = xQueueCreate(10, sizeof(Command));
 
     TaskHandle_t controller_task_handle;
     TaskHandle_t thermostat_task_handle;
@@ -58,7 +55,7 @@ void app_main(void) {
     if (WIFI) {
         initialize_wifi();
         initialize_system_time();
-        xTaskCreate(tcp_server_task, "tcp_server_task", 4096, &queue_handles, 5, NULL);
+        xTaskCreate(tcp_server_task, "tcp_server_task", 4096, &command_queue, 5, NULL);
     }
 
     ESP_LOGI(TAG, "The current date/time is: %s", get_timestamp());
@@ -67,7 +64,7 @@ void app_main(void) {
     init_thermostat_state();
     xTaskCreate(thermostat_task, "thermostat_task", 4096, NULL, 3, &thermostat_task_handle);
 
-    xTaskCreate(controller_task, "controller_task", 4096, &queue_handles, 3, &controller_task_handle);
+    xTaskCreate(controller_task, "controller_task", 4096, &command_queue, 3, &controller_task_handle);
     init_timer(controller_task_handle);
 
 

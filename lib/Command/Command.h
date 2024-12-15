@@ -11,6 +11,14 @@
 #include "SystemTime.h"
 #include "StateBuffer.h"
 
+/* 
+    Command structure
+    Command
+    - mode: CommandType (SET_POWER_FOR_DURATION, SET_TARGET_TEMP_FOR_DURATION) tells the controller what to do
+    - data: CommandData (heater_on, target_temp) data associated with the command
+    - duration: int duration of the command (in seconds), how long the command should be executed for
+    - written: bool flag to indicate if the command has been written (used by server, if written the command is queued)
+*/
 typedef enum {
     SET_POWER_FOR_DURATION, // Set the heater to ON or OFF
     SET_TARGET_TEMP_FOR_DURATION, // Set the target temperature
@@ -27,11 +35,6 @@ typedef struct {
     int duration; // Duration of the command (in seconds)
     bool written; // Flag to indicate if the command has been written
 } Command;
-
-typedef struct {
-    QueueHandle_t command_queue;
-    QueueHandle_t air_temp_queue;
-} QueueHandles;
 
 typedef Packet (*FunctionPointer)(const Packet *packet, Command *command);
 

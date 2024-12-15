@@ -2,7 +2,6 @@
 
 #define TAG "Controller"
 
-static QueueHandles queue_handles;
 TaskHandle_t controller_task_handle;
 esp_timer_handle_t timer;
 
@@ -30,10 +29,10 @@ void init_timer(TaskHandle_t _controller_task_handle){
 void controller_task(void *pvParameters){
     
     ESP_LOGI(TAG, "Controller task running");
-    queue_handles = *(QueueHandles *)pvParameters;
+    QueueHandle_t command_queue = *(QueueHandle_t *)pvParameters;
 
     
-    if (queue_handles.command_queue == NULL)
+    if (command_queue == NULL)
     {
         ESP_LOGE(TAG, "Command queue is NULL");
         vTaskDelete(NULL);
@@ -63,7 +62,7 @@ void controller_task(void *pvParameters){
         set_thermostat_state(thermostat_state);
 
         // Wait for a command
-        if (xQueueReceive(queue_handles.command_queue, &command, portMAX_DELAY) == pdTRUE)
+        if (xQueueReceive(command_queue, &command, portMAX_DELAY) == pdTRUE)
         {
             ESP_LOGI(TAG, "Received command");
             waiting_for_command = false;

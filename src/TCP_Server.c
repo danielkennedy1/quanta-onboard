@@ -2,12 +2,10 @@
 
 #define TAG "TCP_Server"
 
-static QueueHandles queue_handles;
-
 // TCP server task
 void tcp_server_task(void *pvParameters) {
 
-    queue_handles = *(QueueHandles *)pvParameters;
+    QueueHandle_t command_queue = *(QueueHandle_t *)pvParameters;
 
     int listen_sock, client_sock;
     struct sockaddr_in server_addr, client_addr;
@@ -79,7 +77,7 @@ void tcp_server_task(void *pvParameters) {
             if (received_command->written) {
                 // Send command to controller
                 ESP_LOGI(TAG, "Sending command to controller");
-                if (xQueueSend(queue_handles.command_queue, received_command, 0) != pdTRUE) {
+                if (xQueueSend(command_queue, received_command, 0) != pdTRUE) {
                     ESP_LOGE(TAG, "Error sending command to controller");
                 }
             }
