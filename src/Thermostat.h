@@ -22,10 +22,17 @@ typedef struct {
     ThermostatMode mode;
 } ThermostatState;
 
+// Must be called before any other thermostat state functions
 void init_thermostat_state();
+
+// Thermostat state
 ThermostatState get_thermostat_state();
 void set_thermostat_state(ThermostatState state);
 
+/*
+    Thermostat task
+    If the thermostat is on, the task will check the current temperature and adjust the heater state accordingly
+*/
 void thermostat_task(void *pvParameters);
 
 #endif // THERMOSTAT_H

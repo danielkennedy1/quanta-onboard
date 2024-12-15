@@ -83,6 +83,9 @@ void app_main(void) {
     gpio_isr_handler_add(KILLSWITCH_PIN, killswitch_isr_handler, NULL);
 
     while (1) {
+        // NOTE: This would never fly in real life because of the possibility of the semaphore being taken and stuck, so the heater would never turn off
+        // So the safety killswitch would have to be a physical switch that cuts power to the heater or something instead
+        // Either way, demonstrates the use of an ISR and a semaphore and killing the tasks
         if (xSemaphoreTake(killswitch_semaphore, portMAX_DELAY) == pdTRUE) {
             ESP_LOGE(TAG, "Killswitch activated! Turning off the heater...");
             set_heater_state((HeaterState) { .heater_on = false });

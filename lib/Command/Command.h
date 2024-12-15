@@ -36,8 +36,10 @@ typedef struct {
     bool written; // Flag to indicate if the command has been written
 } Command;
 
+// Function pointer is a pointer that points to a function that takes a pointer to a Packet and a pointer to a Command and returns a Packet
 typedef Packet (*FunctionPointer)(const Packet *packet, Command *command);
 
+// Function prototypes for possible commands from agent
 Packet heartbeat(const Packet *packet, Command *command);
 Packet get_system_time(const Packet *packet, Command *command);
 Packet set_temperature_for_duration(const Packet *packet, Command *command);
@@ -52,6 +54,7 @@ Packet get_uptime_for_minute(const Packet *packet, Command *command);
 extern FunctionPointer protocol_function_table[];
 
 // Process a received packet, write a command and return a response packet
+// This function will call the corresponding function based on the function flag in the packet
 Packet process_packet(const Packet *packet, Command *command);
 
 #endif // COMMAND_H

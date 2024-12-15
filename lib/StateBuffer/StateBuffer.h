@@ -27,11 +27,14 @@ typedef struct {
     bool is_empty;
 } FloatBuffer;
 
+// Must be called before any other state buffer functions
 void init_state_buffer(time_t current_time);
 
+// Air temperature recording
 void add_air_temp(float air_temp);
 bool get_next_minute_average_air_temp(float* average_air_temp, time_t* timestamp);
 
+// Power state recording (heater on/off)
 void add_power_state(bool power_state);
 bool get_next_minute_uptime(float* uptime, time_t* timestamp);
 

@@ -34,17 +34,16 @@ Packet set_control_for_duration(const Packet *packet, Command *command) {
     return (Packet){0};
 }
 
-// Process a received packet and return a response packet
 Packet process_packet(const Packet *packet, Command *command) {
 
     ESP_LOGI(TAG, "Processing packet");
-    // Call the corresponding function
+
     FunctionPointer func = protocol_function_table[packet->function_flag];
     if (func) {
-        return func(packet, command); // Pass the packet to the function
+        return func(packet, command);
     } else {
         printf("Error: Function not found for flag 0x%02X\n", packet->function_flag);
-        return (Packet){0}; // Return an empty packet in case of error
+        return (Packet){0};
     }
 }
 

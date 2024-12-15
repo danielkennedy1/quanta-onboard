@@ -36,7 +36,7 @@ void initialize_system_time(void) {
 const char* get_timestamp(void) {
     time_t now;
     struct tm timestamp;
-    static char timestamp_str[64]; // Static buffer to store timestamp string
+    static char timestamp_str[64]; // Static buffer to store timestamp string, no reallocation for each call
 
     time(&now);
     localtime_r(&now, &timestamp);

@@ -8,6 +8,10 @@
 #include "Heater.h"
 #include "StateBuffer.h"
 
+/*
+ * Aggregator task
+ * This task will run at a predefined interval and aggregate the data in the state buffer
+*/
 void aggregator_task(void *pvParameters);
 
 #endif // AGGREAGATOR_H

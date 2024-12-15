@@ -13,9 +13,13 @@ typedef struct {
     int retry_count;
 } wifi_event_handler_context_t;
 
-void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
+// Initialize Wi-Fi connection
+void initialize_wifi(void);
+
+// Connect to Wi-Fi network as a station (as opposed to an access point)
 void wifi_init_sta(wifi_event_handler_context_t *wifi_event_handler_context);
 
-void initialize_wifi(void);
+// Wi-Fi event handler for connection status
+void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
 #endif // WIFI_H
