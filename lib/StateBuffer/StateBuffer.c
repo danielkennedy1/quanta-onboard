@@ -46,7 +46,7 @@ void add_air_temp(float air_temp) {
 
 // Private function
 bool read_air_temp(float* air_temp) {
-    ESP_LOGI(TAG, "Reading air temp");
+    ESP_LOGD(TAG, "Reading air temp");
     xSemaphoreTake(air_temp_buffer_mutex, portMAX_DELAY);
     if (air_temp_buffer.is_empty) {
         ESP_LOGE(TAG, "Air temp buffer is empty");
@@ -63,7 +63,7 @@ bool read_air_temp(float* air_temp) {
 }
 
 void add_power_state(bool power_state) {
-    ESP_LOGI(TAG, "Adding power state: %d", power_state);
+    ESP_LOGD(TAG, "Adding power state: %d", power_state);
     xSemaphoreTake(power_state_buffer_mutex, portMAX_DELAY);
     power_state_buffer.buffer[power_state_buffer.write_head] = power_state;
     power_state_buffer.write_head = (power_state_buffer.write_head + 1) % (BUFFER_SIZE);

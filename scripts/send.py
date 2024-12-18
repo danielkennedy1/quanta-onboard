@@ -1,7 +1,7 @@
 import socket
 
 # ESP32 server IP and port
-ESP32_IP = '192.168.0.174'  # Replace with your ESP32's IP address
+ESP32_IP = '192.168.0.106'  # Replace with your ESP32's IP address
 PORT = 1234  # Port to which ESP32 is listening
 
 START_BYTE = 0x02
